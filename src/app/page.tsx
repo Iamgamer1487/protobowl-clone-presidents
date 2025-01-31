@@ -12,7 +12,7 @@ const Home = () => {
   const [timerSeconds, setTimerSeconds] = useState<number>(10);
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [showAnswerQ, setShowAnswerQ] = useState<string>("");
-  const [timerSecondsQ, setTimerSecondsQ] = useState<number>(20); // Timer for question countdown
+  const [timerSecondsQ, setTimerSecondsQ] = useState<number>(40); // Timer for question countdown
 
   // Fetch question and answer
   useEffect(() => {
