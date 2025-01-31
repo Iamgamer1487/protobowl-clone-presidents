@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
 
 const AnswerComponent = ({ answer: correctAnswer }: { answer: string }) => {
   // State to store the answer input value
