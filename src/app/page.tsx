@@ -1,101 +1,153 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import { getRandomQuestionAndAnswer } from "../../firebase"; // Ensure this import matches your actual function
+import AnswerComponent from "../../components/AnswerComponent";
 
-export default function Home() {
+const Home = () => {
+  const [fullText, setFullText] = useState<string>("");
+  const [answer, setAnswer] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
+  const [index, setIndex] = useState<number>(0);
+  const [buzzed, setBuzzed] = useState<boolean>(false);
+  const [timerSeconds, setTimerSeconds] = useState<number>(10);
+  const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const [showAnswerQ, setShowAnswerQ] = useState<string>("");
+  const [timerSecondsQ, setTimerSecondsQ] = useState<number>(20); // Timer for question countdown
+
+  // Fetch question and answer
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      try {
+        const randomQuestion = await getRandomQuestionAndAnswer();
+
+        if (randomQuestion && randomQuestion.Question) {
+          setFullText(randomQuestion.Question); // Set the question as the full text
+          setAnswer(randomQuestion.Answer); // Set the answer
+          setCategory(randomQuestion.Category); // Set the category
+        } else {
+          console.error("Failed to fetch a valid question. Invalid or missing fields.");
+        }
+      } catch (error) {
+        console.error("Error fetching question:", error);
+      }
+    };
+
+    fetchQuestion();
+  }, []);
+
+  const words: string[] = fullText.split(" "); // Split the question text into words
+
+  // Dynamic text effect to reveal words one by one
+  useEffect(() => {
+    if (buzzed) return; // Stop updating if the buzzer has been pressed
+
+    const interval = setInterval(() => {
+      if (index < words.length) {
+        setIndex((prev) => prev + 1);
+      } else {
+        clearInterval(interval); // Stop when all words have been displayed
+      }
+    }, 300); // Word display interval
+
+    return () => clearInterval(interval); // Cleanup interval on unmount or index change
+  }, [index, buzzed, words.length]);
+
+  // Timer countdown effect for the buzzer
+  useEffect(() => {
+    if (!buzzed) return;
+
+    const countdown = setInterval(() => {
+      setTimerSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdown);
+          setBuzzed(false); // Reset buzzer
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdown); // Cleanup the countdown
+  }, [buzzed]);
+
+  // Timer countdown effect for the question
+  useEffect(() => {
+    if (timerSecondsQ <= 0) {
+
+      const e = answer
+
+      setShowAnswerQ(e)
+      return; // Stop if time reaches 0
+    }
+
+    const countdownQ = setInterval(() => {
+      setTimerSecondsQ((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownQ);
+          setShowAnswer(true); // Show answer when time runs out
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(countdownQ); // Cleanup the countdown for question timer
+  }, [timerSecondsQ]);
+
+  const Buzz = () => {
+
+    if (showAnswerQ === ""){
+    setBuzzed(true);
+    setShowAnswer(true);
+    setTimerSeconds(10);
+
+    }
+
+    else{
+      return
+    }
+  };
+
+  const skip_ques = () => {
+    window.location.reload()
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-green-500 via-black to-yellow-500 p-6">
+      <div className="text-center max-w-3xl">
+        <p className="text-3xl text-white font-semibold mb-6">
+          {words.slice(0, index).join(" ")} {/* Display the words up to the current index */}
+        </p>
+        <p className="text-white font-semibold mt-2">Category: {category}</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        {!buzzed && (
+          <button
+            onClick={Buzz}
+            className="px-6 py-3 bg-blue-800 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            Buzz
+          </button>
+        )}
+
+        {buzzed && (
+          <div>
+            <p className="text-white font-semibold mt-4">Time remaining: {timerSeconds}s</p>
+            {showAnswer && (timerSecondsQ !== 0) && <AnswerComponent answer={answer} />}
+          </div>
+        )}
+
+        <p className="text-white font-semibold mt-4">Time remaining for Questions: {timerSecondsQ}s</p>
+        <button
+    onClick={skip_ques}
+    className="mt-4 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-lg hover:bg-red-500 active:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105"
+>
+  Skip / Next
+</button>
+
+        <p className="text-white font-semibold mt-4">Answer: {showAnswerQ}</p>
+      </div>
     </div>
   );
-}
+};
+
+export default Home;
