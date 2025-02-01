@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { getRandomQuestionAndAnswer } from "../../firebase"; // Ensure this import matches your actual function
 import AnswerComponent from "../../components/AnswerComponent";
-
+import Auth_P from '../../components/Auth_P'
 const Home = () => {
   const [fullText, setFullText] = useState<string>("");
   const [answer, setAnswer] = useState<string>("");
@@ -13,6 +13,7 @@ const Home = () => {
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [showAnswerQ, setShowAnswerQ] = useState<string>("");
   const [timerSecondsQ, setTimerSecondsQ] = useState<number>(40); // Timer for question countdown
+
 
   // Fetch question and answer
   useEffect(() => {
@@ -111,43 +112,50 @@ const Home = () => {
   const skip_ques = () => {
     window.location.reload()
   };
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-r from-green-500 via-black to-yellow-500 p-6">
-      <div className="text-center max-w-3xl">
-        <p className="text-3xl text-white font-semibold mb-6">
-          {words.slice(0, index).join(" ")} {/* Display the words up to the current index */}
-        </p>
-        <p className="text-white font-semibold mt-2">Category: {category}</p>
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-green-500 via-black to-yellow-500 p-6">
+        <Auth_P />
 
-        {!buzzed && (
-          <button
-            onClick={Buzz}
-            className="px-6 py-3 bg-blue-800 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300"
-          >
-            Buzz
-          </button>
-        )}
+        <div className="text-center max-w-3xl bg-black bg-opacity-50 p-6 rounded-lg shadow-xl mt-6">
+            <p className="text-4xl text-white font-bold mb-6 leading-snug">
+                {words.slice(0, index).join(" ")}
+            </p>
+            <p className="text-yellow-300 font-semibold mt-2 text-lg">Category: {category}</p>
 
-        {buzzed && (
-          <div>
-            <p className="text-white font-semibold mt-4">Time remaining: {timerSeconds}s</p>
-            {showAnswer && (timerSecondsQ !== 0) && <AnswerComponent answer={answer} />}
-          </div>
-        )}
+            {!buzzed && (
+                <button
+                    onClick={Buzz}
+                    className="mt-6 px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-500 active:bg-blue-700 transition-all duration-300 transform hover:scale-105"
+                >
+                    Buzz
+                </button>
+            )}
 
-        <p className="text-white font-semibold mt-4">Time remaining for Questions: {timerSecondsQ}s</p>
-        <button
-    onClick={skip_ques}
-    className="mt-4 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-lg hover:bg-red-500 active:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105"
->
-  Skip / Next
-</button>
+            {buzzed && (
+                <div className="mt-4">
+                    <p className="text-white font-semibold">Time remaining: {timerSeconds}s</p>
+                    {showAnswer && timerSecondsQ !== 0 && <AnswerComponent answer={answer} />}
+                </div>
+            )}
 
-        <p className="text-white font-semibold mt-4">Answer: {showAnswerQ}</p>
-      </div>
+            <p className="text-white font-semibold mt-4 text-lg">
+                Time remaining for Question: <span className="text-red-400">{timerSecondsQ}s</span>
+            </p>
+
+            <button
+                onClick={skip_ques}
+                className="mt-6 px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-lg hover:bg-red-500 active:bg-red-700 transition-all duration-300 ease-in-out transform hover:scale-105"
+            >
+                Skip / Next
+            </button>
+
+            {showAnswerQ && (
+                <p className="text-white font-semibold mt-4 text-xl">Answer: {showAnswerQ}</p>
+            )}
+        </div>
     </div>
-  );
+);
+
 };
 
 export default Home;
