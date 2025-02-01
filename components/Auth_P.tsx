@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { auth } from "../firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut, User } from "firebase/auth";
+import { GoogleAuthProvider, signInWithPopup, signOut, User} from "firebase/auth";
 
 export default function Auth_P() {
     const [user, setUser] = useState<User | null>(null);
@@ -30,8 +30,9 @@ export default function Auth_P() {
             // Store user data in sessionStorage
             sessionStorage.setItem("user", JSON.stringify(user));
         } catch (error: any) {
+            // Use `any` for error type
             if (error.code !== "auth/cancelled-popup-request") {
-                console.error("Error signing in: ", error);
+                console.error("Error signing in: ", error.message);
             }
         } finally {
             setLoading(false);
@@ -46,8 +47,9 @@ export default function Auth_P() {
             setUser(null);
             // Remove user data from sessionStorage
             sessionStorage.removeItem("user");
-        } catch (error) {
-            console.error("Error signing out: ", error);
+        } catch (error: any) {
+            // Use `any` for error type
+            console.error("Error signing out: ", error.message);
         } finally {
             setLoading(false);
         }
